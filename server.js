@@ -5,36 +5,31 @@ const util = require('util');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
-// const uuid = require('./helpers/uuid');
+
 
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// GET route for index
 app.get('/notes', (req, res) =>
   res.sendFile(path.join(__dirname, '/public/notes.html'))
 );
 
 const readFromFile = util.promisify(fs.readFile);
 
-// GET route to retrieve all notes
 app.get('/api/notes', (req, res) => {
   readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
 
-// POST request to add a note
 app.post('/api/notes', (req, res) => {
   console.info(`${req.method} request received to add a notes`);
 
-  // Destructuring assignment for the items in req.body
   const { title, text } = req.body;
 
   if (title && text) {
     const newNote = {
       title,
       text,
-    //   id: uuid(),
     };
 
     fs.readFile('./db/db.json', `utf-8`, (err, data) => {
@@ -66,7 +61,6 @@ app.post('/api/notes', (req, res) => {
   }
 });
 
-// return index.html file
 app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, '/public/index.html'))
 );
