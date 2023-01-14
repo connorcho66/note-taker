@@ -1,30 +1,47 @@
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const util = require('util');
-
+const express = require('express');
+const path = require('path');
 const PORT = process.env.PORT || 3001;
+const fs = require('fs');
 const app = express();
 
-
-app.use(express.static("public"));
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
-);
+app.get("/", (req, res) => {
+    
+    console.info(`${req.method} successfully came into the web`);
 
-const readFromFile = util.promisify(fs.readFile);
+    res.sendFile(path.join(__dirname, "/public/index.html"));
 
-app.get('/api/notes', (req, res) => {
-  readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
+});
+
+app.get("/notes", (req, res) => {
+
+    console.info(`${req.method} successfully accessed the notes`);
+
+    res.sendFile(path.join(__dirname, '/public/notes.html'));
+    
+});
+
+app.get("/api/notes", (req, res) => {
+    
+    console.info(`${req.method} request to access all notes granted`);
+
+    fs.readFile('./db/db.json', "utf8", function(err, data){
+        if(err){
+            console.log(err);
+        }else {
+            res.json(JSON.parse(data));
+        }
+    });
 });
 
 app.post('/api/notes', (req, res) => {
-  console.info(`${req.method} request received to add a notes`);
 
-  const { title, text } = req.body;
+    console.info(`${req.method} successfully added a note`);
+
+    const { title, text } = req.body;
 
   if (title && text) {
     const newNote = {
@@ -61,10 +78,12 @@ app.post('/api/notes', (req, res) => {
   }
 });
 
-app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/index.html'))
-);
+app.get("*", (req, res) => {
 
-app.listen(PORT, () =>
-  console.log(`Express server listening on port http://localhost:${PORT} `)
-)
+    console.info(`${req.method} wrong path`)
+
+    res.sendFile(path.join(__dirname, '/public/index.html'))
+
+});
+
+app.listen(PORT, () => console.log('App is now listening to the port http://localhost:3001'));
