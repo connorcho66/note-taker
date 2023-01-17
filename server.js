@@ -3,25 +3,21 @@ const path = require('path');
 const PORT = process.env.PORT || 3001;
 const fs = require('fs');
 const app = express();
+const uuid = require('./helper/uuid')
 
 app.use(express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended:true}));
 
-app.get("/", (req, res) => {
-    
-    console.info(`${req.method} successfully came into the web`);
+app.get('/', (req, res) => {
+    console.info(`${req.method} access granted!`);
 
-    res.sendFile(path.join(__dirname, "/public/index.html"));
-
+    res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-app.get("/notes", (req, res) => {
-
-    console.info(`${req.method} successfully accessed the notes`);
-
+app.get('/notes', (req, res) => {
+    console.info(`${req.method} accessed notes!`)
     res.sendFile(path.join(__dirname, '/public/notes.html'));
-    
 });
 
 app.get("/api/notes", (req, res) => {
@@ -47,6 +43,7 @@ app.post('/api/notes', (req, res) => {
     const newNote = {
       title,
       text,
+      id: uuid(),
     };
 
     fs.readFile('./db/db.json', `utf-8`, (err, data) => {
@@ -76,14 +73,6 @@ app.post('/api/notes', (req, res) => {
   } else {
     res.status(500).json('Error in posting note');
   }
-});
-
-app.get("*", (req, res) => {
-
-    console.info(`${req.method} wrong path`)
-
-    res.sendFile(path.join(__dirname, '/public/index.html'))
-
 });
 
 app.listen(PORT, () => console.log('App is now listening to the port http://localhost:3001'));
